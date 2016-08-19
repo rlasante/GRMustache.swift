@@ -442,7 +442,7 @@ final public class TemplateRepository {
         
         init(baseURL: NSURL, templateExtension: String?, encoding: NSStringEncoding) {
             self.baseURL = baseURL
-            self.baseURLAbsoluteString = baseURL.URLByStandardizingPath!.absoluteString
+            self.baseURLAbsoluteString = baseURL.URLByStandardizingPath?.absoluteString ?? ""
             self.templateExtension = templateExtension
             self.encoding = encoding
         }
@@ -477,17 +477,16 @@ final public class TemplateRepository {
                 templateBaseURL = self.baseURL
             }
             
-            let templateURL = NSURL(string: templateFilename, relativeToURL: templateBaseURL)!.URLByStandardizingPath!
-            let templateAbsoluteString = templateURL.absoluteString
-            
-            // Make sure partial relative paths can not escape repository root
-            if templateAbsoluteString.rangeOfString(baseURLAbsoluteString)?.startIndex == templateAbsoluteString.startIndex {
-                return templateAbsoluteString
-            } else {
-                return nil
-            }
+			if let templateURL = NSURL(string: templateFilename, relativeToURL: templateBaseURL)?.URLByStandardizingPath,
+				let templateAbsoluteString = templateURL.absoluteString where
+				templateAbsoluteString.rangeOfString(baseURLAbsoluteString)?.startIndex == templateAbsoluteString.startIndex {
+				// Make sure partial relative paths can not escape repository root
+				return templateAbsoluteString
+			} else {
+				return nil
+			}
         }
-        
+		
         func templateStringForTemplateID(templateID: TemplateID) throws -> String {
             return try NSString(contentsOfURL: NSURL(string: templateID)!, encoding: encoding) as String
         }
